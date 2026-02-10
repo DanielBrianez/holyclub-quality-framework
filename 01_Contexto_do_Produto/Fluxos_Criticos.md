@@ -206,3 +206,178 @@ Informar o usuário de forma clara sobre a indisponibilidade de campeonatos e of
 
 **Observação de QA:**
 Este fluxo está diretamente conectado ao Fluxo Crítico C (Inscrição em Campeonatos) e deve ser validado sempre que houver alterações no módulo de campeonatos.
+
+# Fluxo Crítico C — Inscrição em Campeonato 🏆
+
+## Objetivo
+
+Garantir que apenas jogadores elegíveis consigam se inscrever em campeonatos da HolyClub, respeitando regras competitivas, limite de vagas, estado do campeonato e status do jogador, assegurando justiça, confiabilidade e boa experiência do usuário.
+
+Este é um fluxo **P0**, pois falhas impactam diretamente a credibilidade competitiva da plataforma.
+
+---
+
+## Atores Envolvidos
+
+- Jogador autenticado
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Campeonatos
+
+---
+
+## Pré-condições
+
+- Usuário autenticado e elegível (Fluxo Crítico A)
+- Serviço de campeonatos disponível
+- Existe ao menos um campeonato criado no sistema
+
+---
+
+## Estados Possíveis de um Campeonato
+
+- Não existente
+- Em breve
+- Inscrições abertas
+- Inscrições encerradas
+- Lotado
+- Em andamento
+- Encerrado
+- Cancelado
+
+> Este fluxo cobre especificamente o estado **Inscrições abertas**.  
+Os demais estados são tratados como fluxos alternativos.
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### C1 — Acesso à Aba Campeonatos
+- Usuário acessa a aba Campeonatos
+- O sistema exibe campeonatos com inscrições abertas
+
+**Validações QA:**
+- Lista carrega corretamente
+- Informações visíveis:
+  - Nome do campeonato
+  - Datas
+  - Número de vagas
+  - Requisitos de participação
+
+---
+
+### C2 — Seleção do Campeonato
+- Usuário seleciona um campeonato disponível para inscrição
+
+**Validações QA:**
+- Página de detalhes carrega corretamente
+- Regras do campeonato são exibidas de forma clara
+
+---
+
+### C3 — Validação de Elegibilidade do Jogador
+Antes de permitir a inscrição, o sistema valida automaticamente:
+
+- Usuário autenticado
+- Ausência de restrições Steam
+- Ausência de restrições HolyClub
+- Atendimento aos requisitos do campeonato, como:
+  - ELO mínimo e/ou máximo
+  - Região
+  - Rank
+  - Idade mínima da conta (quando aplicável)
+
+**Regra de Negócio:**
+> A validação de elegibilidade deve ocorrer antes da tentativa de inscrição.
+
+---
+
+### C4 — Solicitação de Inscrição
+- Usuário clica em **“Inscrever-se”**
+
+O sistema:
+- Revalida o estado do campeonato
+- Revalida a elegibilidade do jogador
+- Verifica disponibilidade de vagas
+- Impede inscrições duplicadas
+
+---
+
+### C5 — Confirmação da Inscrição
+- Sistema confirma a inscrição com sucesso
+- Atualiza o número de vagas disponíveis
+- Exibe feedback claro ao usuário
+
+**Exemplo de mensagem:**
+> *“Inscrição realizada com sucesso! Boa sorte no campeonato.”*
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### C6 — Campeonato Lotado
+- Inscrição é bloqueada
+- Mensagem clara informa que não há mais vagas disponíveis
+
+---
+
+### C7 — Inscrições Encerradas
+- Botão de inscrição desativado ou bloqueado
+- Mensagem informativa exibida ao usuário
+
+---
+
+### C8 — Jogador Inelegível
+Possíveis motivos:
+- ELO fora do intervalo permitido
+- Restrição Steam ativa
+- Restrição HolyClub ativa
+
+**Comportamento esperado:**
+- Inscrição bloqueada
+- Mensagem específica informando o motivo da inelegibilidade
+
+---
+
+### C9 — Tentativa de Inscrição Duplicada
+- Sistema impede nova inscrição no mesmo campeonato
+- Mensagem informativa exibida ao usuário
+
+---
+
+### C10 — Concorrência de Inscrição (Race Condition)
+- Dois ou mais jogadores tentam ocupar a última vaga simultaneamente
+
+**Resultado esperado:**
+- Apenas um jogador é inscrito
+- Os demais recebem mensagem de campeonato lotado
+- Nenhuma inconsistência no número de vagas
+
+---
+
+## Pós-condições
+
+- Jogador inscrito corretamente no campeonato
+- Estado do campeonato atualizado
+- Inscrição persistente após refresh, logout ou novo login
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Jogador inelegível inscrito em campeonato
+- Inscrição duplicada
+- Contador de vagas incorreto
+- Inscrição realizada após encerramento
+- Falta de feedback claro ao usuário
+- Inscrição sem validação completa das regras
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser utilizado como base para:
+- Casos de teste manuais
+- Testes automatizados de API e UI
+- Testes de concorrência
+- Cenários BDD
+- Testes de regressão sempre que regras de campeonatos forem alteradas
