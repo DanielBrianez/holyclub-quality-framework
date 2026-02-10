@@ -207,7 +207,7 @@ Informar o usuário de forma clara sobre a indisponibilidade de campeonatos e of
 **Observação de QA:**
 Este fluxo está diretamente conectado ao Fluxo Crítico C (Inscrição em Campeonatos) e deve ser validado sempre que houver alterações no módulo de campeonatos.
 
-# Fluxo Crítico C — Inscrição em Campeonato 🏆
+# Fluxo Crítico C — Inscrição em Campeonato 
 
 ## Objetivo
 
@@ -381,7 +381,6 @@ Este fluxo deve ser utilizado como base para:
 - Testes de concorrência
 - Cenários BDD
 - Testes de regressão sempre que regras de campeonatos forem alteradas
-
 # Fluxo Crítico D — Recuperação de Senha e Autenticação 🔐
 
 ## Objetivo
@@ -567,7 +566,7 @@ Este fluxo deve ser utilizado como base para:
 - Testes de regressão
 - Cenários BDD e automação
 
-# Fluxo Crítico E — Matchmaking e Criação de Partida 🎮
+# Fluxo Crítico E — Matchmaking e Criação de Partida 
 
 ## Objetivo
 
@@ -764,7 +763,7 @@ Este fluxo deve ser utilizado como base para:
 - Cenários BDD relacionados a partidas e matchmaking
 
 
-# Fluxo Crítico F — Abandono de Partida / AFK / Desconexão 🚫
+# Fluxo Crítico F — Abandono de Partida / AFK / Desconexão
 
 ## Objetivo
 
@@ -932,3 +931,187 @@ Este fluxo deve ser validado com:
 - Testes de reincidência
 - Testes de impacto no ELO
 - Testes de persistência pós-refresh e novo login
+
+# Fluxo Crítico G — Denúncia, Fair Play e Moderação 
+
+## Objetivo
+
+Definir como a HolyClub permite que jogadores denunciem comportamentos inadequados, como o sistema processa essas denúncias e como decisões de fair play são aplicadas de forma segura, auditável e justa.
+
+Este é um fluxo **P0**, pois impacta diretamente:
+- Integridade competitiva
+- Confiança da comunidade
+- Retenção de jogadores
+- Risco legal e reputacional da plataforma
+
+---
+
+## Atores Envolvidos
+
+- Jogador denunciante
+- Jogador denunciado
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Fair Play / Moderação
+- Suporte / Admin HolyClub
+
+---
+
+## Pré-condições
+
+- Jogador autenticado (Fluxo B)
+- Partida finalizada ou em andamento (Fluxo E ou F)
+- Jogador participou da partida relacionada à denúncia
+
+---
+
+## Tipos de Denúncia
+
+- Abandono de partida recorrente
+- AFK intencional
+- Toxicidade / assédio
+- Uso de trapaças (cheat, exploit)
+- Manipulação de resultado
+- Comportamento antidesportivo
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### G1 — Acesso à Opção de Denúncia
+- Jogador acessa:
+  - Tela de resultados da partida **ou**
+  - Perfil de um jogador da partida
+- Seleciona a opção **“Denunciar jogador”**
+
+---
+
+### G2 — Seleção do Motivo
+- Sistema apresenta lista de motivos padronizados
+- Jogador seleciona um ou mais motivos
+- Campo opcional para comentário adicional
+
+> **Regra de Negócio:**  
+> Denúncias devem sempre estar associadas a uma partida válida.
+
+---
+
+### G3 — Envio da Denúncia
+- Jogador confirma o envio
+- Sistema valida:
+  - Participação na partida
+  - Jogador denunciado
+  - Integridade dos dados
+
+---
+
+### G4 — Registro da Denúncia
+- Denúncia é registrada com:
+  - ID da partida
+  - ID do denunciante
+  - ID do denunciado
+  - Timestamp
+  - Motivo(s)
+  - Status inicial: **Em análise**
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### G5 — Denúncia Inválida
+A denúncia é recusada quando:
+- Jogador não participou da partida
+- Tentativa de denúncia duplicada
+- Partida inexistente ou inválida
+
+**Ação do sistema:**
+- Exibe mensagem de erro clara ao usuário
+- Nenhum registro é criado
+
+---
+
+### G6 — Análise Automática (quando aplicável)
+O sistema pode aplicar análise automática com base em:
+- Logs de abandono
+- Histórico de AFK
+- Dados de desconexão
+- Reincidência de denúncias
+
+**Resultado possível:**
+- Arquivamento automático
+- Escalonamento para análise manual
+- Aplicação direta de penalidade (casos claros)
+
+---
+
+### G7 — Análise Manual (Moderação)
+- Moderador acessa painel administrativo
+- Avalia:
+  - Histórico do jogador
+  - Logs da partida
+  - Denúncias anteriores
+- Define decisão final
+
+---
+
+## Decisões Possíveis
+
+- Arquivamento da denúncia
+- Aviso formal ao jogador
+- Penalidade temporária
+- Penalidade permanente
+- Ajuste de ELO
+- Restrição de funcionalidades
+
+---
+
+## Comunicação ao Jogador
+
+### Jogador Denunciado
+- Notificação clara e objetiva
+- Motivo da penalidade (quando aplicável)
+- Duração da restrição
+- Canal de suporte para contestação
+
+### Jogador Denunciante
+- Confirmação de recebimento da denúncia
+- Atualização quando houver decisão (quando permitido)
+
+---
+
+## Pós-condições
+
+- Denúncia registrada e auditável
+- Decisão aplicada corretamente
+- Histórico do jogador atualizado
+- Dados disponíveis para suporte e compliance
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Denúncia sem vínculo com partida
+- Penalidade sem evidência registrada
+- Falta de notificação ao jogador penalizado
+- Exposição de identidade do denunciante
+- Possibilidade de spam de denúncias
+- Decisões sem log ou rastreabilidade
+
+---
+
+## Mensagens ao Usuário (Exemplos)
+
+- *“Sua denúncia foi registrada e está em análise.”*
+- *“Uma ação foi tomada com base na sua denúncia.”*
+- *“Você recebeu uma penalidade por violar as regras de fair play.”*
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser validado com:
+- Testes de denúncia duplicada
+- Testes de denúncia inválida
+- Testes de análise automática
+- Testes de escalonamento manual
+- Testes de reincidência
+- Testes de auditoria e logs
