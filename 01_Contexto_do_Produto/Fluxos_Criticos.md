@@ -1115,3 +1115,182 @@ Este fluxo deve ser validado com:
 - Testes de escalonamento manual
 - Testes de reincidência
 - Testes de auditoria e logs
+
+# Fluxo Crítico H — Penalidades, Recursos e Contestação 🛡️
+
+## Objetivo
+
+Definir como a HolyClub permite que jogadores visualizem penalidades aplicadas, entrem com recurso (contestação) e como o sistema processa essas solicitações de forma segura, justa e auditável.
+
+Este é um fluxo **P0**, pois impacta diretamente:
+- Confiança do usuário
+- Risco jurídico e reputacional
+- Transparência do sistema de Fair Play
+- Retenção de jogadores penalizados
+
+---
+
+## Atores Envolvidos
+
+- Jogador penalizado
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Penalidades / Fair Play
+- Suporte / Moderação HolyClub
+
+---
+
+## Pré-condições
+
+- Jogador autenticado (Fluxo B)
+- Jogador possui ao menos uma penalidade ativa ou histórica
+- Penalidade registrada corretamente (Fluxos F ou G)
+
+---
+
+## Tipos de Penalidade
+
+- Aviso formal
+- Bloqueio temporário de matchmaking
+- Bloqueio de campeonatos
+- Redução de ELO
+- Restrição funcional
+- Banimento permanente
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### H1 — Acesso à Área de Penalidades
+- Jogador acessa:
+  - Perfil → **Penalidades & Fair Play**
+- Sistema exibe lista de penalidades:
+  - Ativas
+  - Expiradas
+  - Permanentes
+
+---
+
+### H2 — Visualização de Detalhes
+Para cada penalidade, o sistema exibe:
+- Motivo
+- Data de aplicação
+- Duração (quando aplicável)
+- Fluxo de origem (abandono, denúncia, etc.)
+- Status atual
+
+> **Regra de Negócio:**  
+> Nenhuma penalidade pode existir sem um motivo claro e registrado.
+
+---
+
+### H3 — Solicitação de Recurso
+- Jogador seleciona uma penalidade
+- Clica em **“Solicitar recurso”**
+- Sistema informa se a penalidade é elegível para contestação
+
+---
+
+### H4 — Envio do Recurso
+- Jogador preenche:
+  - Justificativa textual
+  - Informações adicionais (opcional)
+- Confirma envio
+
+---
+
+### H5 — Registro do Recurso
+- Sistema cria registro com:
+  - ID da penalidade
+  - ID do jogador
+  - Timestamp
+  - Status inicial: **Em análise**
+- Penalidade permanece ativa durante análise (por padrão)
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### H6 — Penalidade Não Elegível para Recurso
+Exemplos:
+- Banimento permanente confirmado
+- Penalidade já analisada anteriormente
+- Tentativas excessivas de recurso
+
+**Ação do sistema:**
+- Exibe mensagem clara ao jogador
+- Bloqueia envio do recurso
+
+---
+
+### H7 — Análise do Recurso (Moderação)
+- Moderador acessa painel administrativo
+- Avalia:
+  - Histórico do jogador
+  - Logs técnicos
+  - Evidências da penalidade
+  - Justificativa apresentada
+
+---
+
+### H8 — Decisão do Recurso
+Decisões possíveis:
+- Indeferido (penalidade mantida)
+- Parcialmente deferido (redução de duração)
+- Deferido (penalidade removida)
+- Agravamento (em caso de má-fé comprovada)
+
+---
+
+## Comunicação ao Jogador
+
+### Resultado do Recurso
+- Sistema notifica o jogador com:
+  - Decisão final
+  - Justificativa objetiva
+  - Ação aplicada
+
+**Exemplos:**
+- *“Seu recurso foi analisado e a penalidade foi mantida.”*
+- *“Sua penalidade foi reduzida após análise.”*
+- *“A penalidade foi removida com sucesso.”*
+
+---
+
+## Pós-condições
+
+- Decisão registrada e auditável
+- Penalidade atualizada corretamente
+- Histórico do jogador atualizado
+- Logs disponíveis para suporte e compliance
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Penalidade sem possibilidade de visualização
+- Recurso sem resposta
+- Decisão sem justificativa registrada
+- Alteração de penalidade sem log
+- Vazamento de informações internas de moderação
+- Possibilidade de spam infinito de recursos
+
+---
+
+## Regras de Negócio Importantes
+
+- Recursos possuem limite por penalidade
+- Reincidência de recursos abusivos pode gerar nova penalidade
+- Penalidades críticas podem não ser elegíveis para contestação
+- Toda decisão deve ser rastreável
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser validado com:
+- Testes de penalidade ativa e expirada
+- Testes de elegibilidade de recurso
+- Testes de decisão manual
+- Testes de concorrência de recursos
+- Testes de auditoria e logs
+- Testes de persistência pós-login
