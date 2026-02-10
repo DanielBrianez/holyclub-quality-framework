@@ -381,3 +381,188 @@ Este fluxo deve ser utilizado como base para:
 - Testes de concorrência
 - Cenários BDD
 - Testes de regressão sempre que regras de campeonatos forem alteradas
+
+# Fluxo Crítico D — Recuperação de Senha e Autenticação 🔐
+
+## Objetivo
+
+Garantir que o processo de autenticação e recuperação de senha da HolyClub seja **seguro, confiável e à prova de falhas críticas**, protegendo contas de jogadores contra acesso indevido, sequestro de conta (account takeover) e erros de autenticação.
+
+Este é um fluxo **P0 absoluto**, pois qualquer falha compromete segurança, confiança do usuário e integridade da plataforma.
+
+---
+
+## Atores Envolvidos
+
+- Jogador
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Autenticação
+- Serviço de E-mail / Notificações
+- Steam (quando aplicável)
+
+---
+
+## Pré-condições
+
+- Jogador possui conta criada na HolyClub
+- Serviço de autenticação ativo
+- Serviço de envio de e-mails disponível
+- Base de usuários acessível
+
+---
+
+## Fluxos Abrangidos
+
+- Login
+- Logout
+- Recuperação de senha
+- Redefinição de senha
+- Tratamento de erros de autenticação
+- Proteções contra abuso
+
+---
+
+## Fluxo Principal — Autenticação (Happy Path)
+
+### D1 — Acesso à Tela de Login
+- Jogador acessa a tela de login da HolyClub
+
+**Validações QA:**
+- Campos de entrada visíveis e funcionais
+- Mensagens de erro não exibidas previamente
+- Opção “Esqueci minha senha” disponível
+
+---
+
+### D2 — Inserção de Credenciais Válidas
+- Jogador informa e-mail/usuário e senha corretos
+
+**Validações QA:**
+- Dados enviados via conexão segura (HTTPS)
+- Nenhum dado sensível exposto no frontend
+
+---
+
+### D3 — Validação das Credenciais
+O sistema:
+- Valida usuário e senha
+- Verifica status da conta
+- Verifica restrições HolyClub e Steam
+- Valida tokens de sessão
+
+---
+
+### D4 — Login Bem-sucedido
+- Jogador é autenticado
+- Sessão é criada com segurança
+- Usuário é redirecionado corretamente para a Home
+
+**Exemplo de mensagem:**
+> *“Bem-vindo de volta, Sombra.”*
+
+---
+
+## Fluxo Alternativo — Recuperação de Senha
+
+### D5 — Solicitação de Recuperação
+- Jogador clica em **“Esqueci minha senha”**
+- Informa e-mail cadastrado
+
+**Comportamento esperado:**
+- Sistema não revela se o e-mail existe ou não
+- Mensagem genérica exibida ao usuário
+
+**Exemplo:**
+> *“Se existir uma conta associada a este e-mail, você receberá as instruções em breve.”*
+
+---
+
+### D6 — Envio de Link de Recuperação
+O sistema:
+- Gera token único, temporário e seguro
+- Envia link de redefinição por e-mail
+
+**Regras:**
+- Token com expiração
+- Token de uso único
+- Associação direta ao usuário
+
+---
+
+### D7 — Redefinição de Senha
+- Jogador acessa o link recebido
+- Define nova senha válida
+
+**Validações QA:**
+- Token ainda válido
+- Token não reutilizado
+- Regras de senha respeitadas
+
+---
+
+### D8 — Confirmação de Redefinição
+- Senha atualizada com sucesso
+- Sessões ativas anteriores são invalidadas
+- Feedback claro ao usuário
+
+---
+
+## Fluxos de Erro e Cenários Negativos
+
+### D9 — Credenciais Inválidas
+- Login bloqueado
+- Mensagem clara, sem expor detalhes
+
+---
+
+### D10 — Token Expirado ou Inválido
+- Redefinição bloqueada
+- Usuário orientado a solicitar novo link
+
+---
+
+### D11 — Conta com Restrição
+- Login permitido ou bloqueado conforme regra
+- Restrição exibida claramente no perfil e via notificação
+
+**Exemplo:**
+> *“Sua conta possui uma restrição ativa e não pode participar de partidas no momento.”*
+
+---
+
+### D12 — Tentativas Excessivas de Login
+- Sistema aplica rate limit ou bloqueio temporário
+- Usuário informado sem revelar critérios internos
+
+---
+
+## Pós-condições
+
+- Sessões válidas e seguras
+- Senha atualizada corretamente (quando aplicável)
+- Tokens antigos invalidados
+- Usuário corretamente autenticado ou bloqueado
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Login em conta de terceiros
+- Redirecionamento incorreto após login
+- Vazamento de informações sensíveis
+- Recuperação de senha sem validação
+- Token reutilizável ou sem expiração
+- Exposição da existência de contas por e-mail
+- Falha silenciosa sem feedback ao usuário
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser utilizado como base para:
+- Testes de segurança
+- Testes de autenticação e sessão
+- Testes de API
+- Testes de abuso (brute force)
+- Testes de regressão
+- Cenários BDD e automação
