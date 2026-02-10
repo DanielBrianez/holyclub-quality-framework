@@ -539,3 +539,166 @@ Este fluxo deve ser validado com:
 - Tentativas de edição inválidas
 - Falhas de integração externa
 - Persistência após logout/login
+
+# Fluxo Crítico D — Validação de Conta, Restrições e Elegibilidade 🔍
+
+## Objetivo
+
+Garantir que apenas jogadores **elegíveis** possam participar de partidas e eventos na HolyClub, validando:
+- Restrições da Steam (VAC, Game Ban, Trade Ban, Community Ban)
+- Penalidades internas da HolyClub
+- Status geral da conta
+
+Este fluxo é **P0 absoluto**, pois protege:
+- Integridade competitiva
+- Confiança da comunidade
+- Credibilidade da plataforma
+
+---
+
+## Atores Envolvidos
+
+- Jogador
+- Sistema HolyClub (Frontend + Backend)
+- Steam API
+- Serviço de Antifraude
+- Sistema de Penalidades HolyClub
+- Serviço de Notificações
+
+---
+
+## Pré-condições
+
+- Jogador autenticado com sucesso (Fluxo B)
+- Conta Steam vinculada
+- Serviços de verificação ativos
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### D1 — Acesso ao Sistema ou Funcionalidade Competitiva
+- Jogador tenta:
+  - Entrar em partida
+  - Criar partida
+  - Inscrever-se em evento/campeonato
+- Sistema inicia validações automáticas
+
+---
+
+### D2 — Verificação de Restrições Steam
+- Sistema consulta Steam API
+- Valida:
+  - VAC Ban
+  - Game Ban
+  - Community Ban
+  - Trade Ban
+
+**Regra de Negócio:**  
+Qualquer tipo de ban relevante **impede participação** em partidas/eventos.
+
+---
+
+### D3 — Verificação de Penalidades Internas (HolyClub)
+- Sistema verifica:
+  - Suspensão temporária
+  - Banimento permanente
+  - Restrições parciais (ex: apenas matchmaking bloqueado)
+- Considera histórico e reincidência
+
+---
+
+### D4 — Consolidação de Elegibilidade
+- Sistema cruza dados:
+  - Steam
+  - Penalidades internas
+- Define status do jogador:
+  - ✅ Elegível
+  - ⚠️ Elegível com restrições
+  - ❌ Inelegível
+
+---
+
+### D5 — Autorização de Acesso
+- Se elegível:
+  - Jogador prossegue normalmente
+- Sistema registra auditoria da validação
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### D6 — Banimento Detectado na Steam
+- Sistema bloqueia ação
+- Exibe:
+  - Notificação flutuante
+  - Aviso no perfil do jogador
+
+**Mensagem sugerida:**  
+> "Opa, parece que sua conta Steam possui um banimento ativo (VAC / Game Ban).  
+> Se acredita que isso seja um erro, entre em contato com o suporte."
+
+---
+
+### D7 — Penalidade Interna Ativa
+- Sistema bloqueia funcionalidades conforme regra
+- Exibe mensagem clara:
+  - Tipo da penalidade
+  - Duração (se aplicável)
+
+---
+
+### D8 — Falha na Consulta à Steam API
+- Sistema:
+  - Não libera participação
+  - Exibe mensagem genérica
+- Registra incidente técnico
+- Evita qualquer bypass
+
+---
+
+### D9 — Restrição Temporária Expirada
+- Sistema detecta expiração
+- Remove restrição automaticamente
+- Atualiza status do jogador
+
+---
+
+## Pós-condições
+
+- Jogador autorizado ou bloqueado corretamente
+- Logs de validação registrados
+- Status refletido no perfil
+- Nenhuma ação crítica executada sem validação
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Jogador com VAC/Game Ban participando de partidas
+- Bypass de validação por falha externa
+- Mensagens confusas ou genéricas demais
+- Divergência entre status real e perfil exibido
+- Falta de auditoria das decisões
+
+---
+
+## Regras de Negócio Importantes
+
+- Restrições Steam têm prioridade máxima
+- Penalidades internas podem ser temporárias ou permanentes
+- Falhas externas **bloqueiam**, nunca liberam
+- Todas as decisões devem ser auditáveis
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser testado com:
+- Conta Steam limpa
+- Conta com VAC Ban
+- Conta com Game Ban
+- Penalidade interna temporária
+- Penalidade permanente
+- Falha simulada na Steam API
+- Expiração automática de restrição
