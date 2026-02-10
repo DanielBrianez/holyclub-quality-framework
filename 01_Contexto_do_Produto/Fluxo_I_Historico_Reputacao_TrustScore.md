@@ -997,3 +997,164 @@ Nestes casos:
 - Regras exatas de tempo e penalização devem ser parametrizáveis
 - Este fluxo impacta diretamente matchmaking, rankings e campeonatos
 - Fluxos de **contestação de penalidade** podem ser tratados separadamente
+
+# Fluxo Crítico G — Histórico do Jogador, Logs e Auditoria 📊
+
+## Objetivo
+
+Definir como a HolyClub registra, organiza e disponibiliza o histórico completo de atividades do jogador, garantindo transparência, rastreabilidade, suporte a decisões automatizadas e base sólida para auditoria, suporte e penalizações.
+
+---
+
+## Escopo do Fluxo
+
+Este fluxo contempla:
+
+- Histórico de partidas
+- Histórico de autenticações e sessões
+- Registro de penalizações e restrições
+- Logs de eventos críticos
+- Visão do jogador e visão administrativa
+- Base para suporte e contestação
+
+---
+
+## Tipos de Histórico Registrado
+
+### 1. Histórico de Partidas
+
+Para cada partida, registrar:
+
+- ID da partida
+- Tipo (casual / ranqueada / privada)
+- Data e horário
+- Status final (concluída, abandonada, cancelada)
+- Resultado (quando aplicável)
+- Ocorrências relevantes (abandono, desconexão, punições)
+
+---
+
+### 2. Histórico de Autenticação e Sessão
+
+Registrar eventos como:
+
+- Login bem-sucedido
+- Tentativas falhas de login
+- Ativação / falha de MFA
+- Troca de senha
+- Expiração de sessão
+- Logout forçado
+
+Dados mínimos:
+- Data e hora
+- IP (ou hash)
+- Dispositivo / origem
+- Resultado da tentativa
+
+---
+
+### 3. Histórico de Penalizações
+
+Cada penalização deve conter:
+
+- Tipo de penalização
+- Motivo
+- Fluxo de origem (ex: abandono, fraude, abuso)
+- Data de aplicação
+- Duração
+- Status (ativa / expirada / revogada)
+
+---
+
+## Fluxo Principal — Registro Automático
+
+1. Evento crítico ocorre em qualquer fluxo (A–F)
+2. Sistema registra o evento automaticamente
+3. Evento é classificado por tipo e severidade
+4. Dados são persistidos de forma imutável (append-only)
+5. Evento fica disponível para:
+   - Consulta do jogador (visão limitada)
+   - Consulta administrativa (visão completa)
+
+---
+
+## Visão do Jogador
+
+O jogador deve ter acesso a:
+
+- Histórico de partidas
+- Penalizações ativas e passadas
+- Avisos e alertas relevantes
+
+### Regras Importantes
+
+- Logs sensíveis (IP, antifraude, score interno) **não devem ser exibidos**
+- Informações devem ser claras e compreensíveis
+- Penalizações devem ter motivo explícito
+
+---
+
+## Visão Administrativa
+
+Admins e suporte podem acessar:
+
+- Histórico completo do jogador
+- Linha do tempo de eventos
+- Correlação entre eventos (ex: abandono + penalização)
+- Logs técnicos e antifraude
+- Exportação para análise
+
+---
+
+## Auditoria e Integridade
+
+O sistema deve garantir:
+
+- Logs imutáveis
+- Ordenação cronológica confiável
+- Identificação do sistema ou agente que gerou o evento
+- Proteção contra edição ou exclusão indevida
+
+---
+
+## Validações Críticas
+
+O sistema **não pode**:
+
+- Perder logs de eventos críticos
+- Permitir edição manual de histórico sem rastreio
+- Exibir dados sensíveis ao jogador
+- Aplicar penalizações sem registro associado
+
+---
+
+## Cenários de Erro e Exceção
+
+- Falha momentânea ao persistir logs
+- Inconsistência entre eventos distribuídos
+- Indisponibilidade de serviço de auditoria
+
+Nestes casos:
+- O sistema deve reprocessar eventos
+- Nenhuma ação punitiva deve ocorrer sem log válido
+
+---
+
+## Pós-condições
+
+- Histórico completo e consistente
+- Base confiável para suporte e disputas
+- Dados disponíveis para análises futuras
+- Suporte a decisões automatizadas (ex: Fluxo F e H)
+
+---
+
+## Observações
+
+- Este fluxo é transversal e impacta todos os outros
+- Deve ser considerado **P0 estrutural**
+- Logs podem ser utilizados futuramente para:
+  - Rankings
+  - Matchmaking
+  - Machine Learning
+  - Detecção de abuso
