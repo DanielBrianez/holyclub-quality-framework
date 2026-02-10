@@ -702,3 +702,138 @@ Este fluxo deve ser testado com:
 - Penalidade permanente
 - Falha simulada na Steam API
 - Expiração automática de restrição
+
+# Fluxo Crítico E — Criação, Entrada e Gerenciamento de Partidas 🎮
+
+## Objetivo
+
+Definir como a HolyClub permite que jogadores criem, entrem e participem de partidas, garantindo integridade competitiva, validações de elegibilidade e uma experiência estável do início ao fim da partida.
+
+---
+
+## Escopo do Fluxo
+
+Este fluxo contempla:
+
+- Criação de partidas (casuais, ranqueadas ou privadas)
+- Entrada de jogadores em partidas existentes
+- Validações de elegibilidade do jogador
+- Estado da partida (aguardando, em andamento, finalizada)
+- Tratamento de erros e bloqueios
+- Gerenciamento de abandono ou desconexão (alto nível)
+
+---
+
+## Pré-requisitos
+
+- Usuário autenticado com sucesso
+- Conta Steam vinculada e validada
+- Usuário **sem restrições ativas**, incluindo:
+  - Banimento VAC
+  - Restrições temporárias ou permanentes aplicadas pela HolyClub
+- Perfil ativo e completo
+
+---
+
+## Fluxo Principal — Criação de Partida
+
+1. Usuário acessa a aba **Criar Partida**
+2. Sistema valida:
+   - Autenticação ativa
+   - Status da conta Steam
+   - Ausência de restrições internas ou externas
+3. Usuário define:
+   - Tipo de partida (casual / ranqueada / privada)
+   - Número de jogadores
+   - Regras específicas (quando aplicável)
+4. Sistema cria a partida com status **Aguardando Jogadores**
+5. Usuário é redirecionado para a sala da partida
+6. Interface exibe:
+   - Jogadores conectados
+   - Slots disponíveis
+   - Status da partida
+
+---
+
+## Fluxo Principal — Entrada em Partida Existente
+
+1. Usuário acessa a lista de partidas disponíveis
+2. Sistema exibe apenas partidas compatíveis com:
+   - Tipo de conta do jogador
+   - Região (se aplicável)
+   - Regras de elegibilidade
+3. Usuário seleciona uma partida
+4. Sistema valida novamente:
+   - Autenticação
+   - Restrições Steam e HolyClub
+   - Disponibilidade de vagas
+5. Usuário entra na sala da partida
+6. Status da partida é atualizado em tempo real
+
+---
+
+## Validações Críticas
+
+O sistema **deve bloquear imediatamente** a criação ou entrada em partidas caso:
+
+- O jogador possua banimento VAC
+- O jogador esteja com restrição temporária ou permanente na HolyClub
+- A conta Steam não esteja acessível ou válida
+- A partida esteja cheia ou em estado incompatível
+
+### Mensagens de Erro
+
+- Notificação flutuante (toast)
+- Mensagem fixa na tela ou na sala da partida
+
+Exemplo:
+> "Opa! Sua conta possui uma restrição ativa e não pode participar de partidas no momento. Caso acredite que isso seja um erro, entre em contato com o suporte."
+
+---
+
+## Estados da Partida
+
+- **Aguardando Jogadores**
+- **Pronta para Iniciar**
+- **Em Andamento**
+- **Finalizada**
+- **Cancelada por erro ou falta de jogadores**
+
+Cada estado deve refletir claramente na interface do usuário.
+
+---
+
+## Cenários de Erro e Exceção
+
+- Falha na comunicação com a Steam
+- Desconexão do usuário antes do início da partida
+- Tentativa de entrada em partida inexistente ou encerrada
+- Erro interno na criação da sala
+
+Em todos os casos:
+- O usuário deve receber feedback claro
+- O sistema não deve deixar partidas “fantasma” ativas
+
+---
+
+## O que NÃO pode acontecer
+
+- Jogadores inelegíveis acessarem partidas
+- Partidas iniciarem com validações pendentes
+- Usuários ficarem presos em estados inconsistentes
+- Falta de feedback visual ou mensagens genéricas de erro
+
+---
+
+## Pós-condições
+
+- Partidas ativas refletem corretamente seus estados
+- Logs de criação, entrada e erros são registrados
+- O sistema permanece estável mesmo em cenários de falha
+
+---
+
+## Observações
+
+- Fluxos detalhados de **abandono de partida**, **desconexão** e **penalizações** serão tratados em fluxos críticos específicos (ex: Fluxo F).
+- Este fluxo serve como base para matchmaking e campeonatos futuros.
