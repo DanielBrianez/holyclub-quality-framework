@@ -566,3 +566,199 @@ Este fluxo deve ser utilizado como base para:
 - Testes de abuso (brute force)
 - Testes de regressão
 - Cenários BDD e automação
+
+# Fluxo Crítico E — Matchmaking e Criação de Partida 🎮
+
+## Objetivo
+
+Garantir que o processo de matchmaking da HolyClub seja **justo, seguro, previsível e consistente**, conectando apenas jogadores elegíveis, respeitando regras competitivas, critérios de pareamento e integridade da sessão.
+
+Este é um fluxo **P0**, pois falhas afetam diretamente:
+- Experiência do jogador
+- Integridade competitiva
+- Confiança na plataforma
+- Retenção de usuários
+
+---
+
+## Atores Envolvidos
+
+- Jogador autenticado
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Matchmaking
+- Serviço de Partidas
+- Steam (quando aplicável)
+
+---
+
+## Pré-condições
+
+- Usuário autenticado e elegível (Fluxo Crítico A)
+- Usuário não possui restrições ativas que impeçam matchmaking
+- Serviço de matchmaking disponível
+- Não existe partida ativa associada ao jogador
+
+---
+
+## Conceitos Importantes
+
+- **Fila de Matchmaking:** Conjunto de jogadores aguardando pareamento
+- **Critérios de Match:** Regras usadas para formar partidas (ELO, região, ping, modo)
+- **Partida Ativa:** Jogo criado e em andamento ou em fase de preparação
+- **Timeout de Fila:** Tempo máximo permitido aguardando match
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### E1 — Acesso ao Matchmaking
+- Jogador acessa a funcionalidade de matchmaking
+- Sistema exibe opções disponíveis (modo, tipo de partida, região)
+
+**Validações QA:**
+- Botão de matchmaking visível
+- Nenhuma partida ativa associada ao jogador
+- Estado da conta válido
+
+---
+
+### E2 — Solicitação de Entrada na Fila
+- Jogador clica em **“Buscar Partida”**
+
+O sistema:
+- Valida novamente elegibilidade do jogador
+- Valida ausência de restrições Steam e HolyClub
+- Valida critérios mínimos do modo selecionado
+
+---
+
+### E3 — Entrada na Fila de Matchmaking
+- Jogador é adicionado à fila
+- Sistema inicia contagem de tempo na fila
+- Feedback visual exibido ao usuário
+
+**Exemplo de mensagem:**
+> *“Buscando partida… preparando o melhor match pra você.”*
+
+---
+
+### E4 — Pareamento de Jogadores
+O sistema:
+- Analisa jogadores na fila
+- Aplica critérios de pareamento:
+  - ELO compatível
+  - Região
+  - Latência
+  - Modo de jogo
+- Seleciona jogadores elegíveis
+
+**Regra de Negócio:**
+> Jogadores fora dos critérios definidos não devem ser pareados, mesmo que o tempo de fila aumente, salvo regras explícitas de relaxamento progressivo.
+
+---
+
+### E5 — Criação da Partida
+- Sistema cria a partida
+- Associa jogadores à partida
+- Define estado inicial (ex: `preparing`, `ready`, `live`)
+- Remove jogadores da fila
+
+---
+
+### E6 — Redirecionamento para a Partida
+- Jogadores são redirecionados corretamente
+- Informações da partida são exibidas
+- Sessões permanecem válidas
+
+**Validações QA:**
+- Nenhum jogador entra na partida errada
+- Todos os jogadores do match estão presentes
+- Dados consistentes entre frontend e backend
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### E7 — Jogador Inelegível
+Possíveis motivos:
+- Restrição HolyClub ativa
+- Restrição Steam detectada
+- Requisitos do modo não atendidos
+
+**Comportamento esperado:**
+- Entrada na fila bloqueada
+- Mensagem clara informando o motivo
+
+---
+
+### E8 — Timeout de Matchmaking
+- Tempo máximo de fila atingido
+- Jogador removido automaticamente da fila
+
+**Mensagem exibida:**
+> *“Não encontramos uma partida compatível no momento. Tente novamente mais tarde.”*
+
+---
+
+### E9 — Cancelamento Manual da Fila
+- Jogador cancela a busca
+- Sistema remove o jogador da fila
+- Nenhuma penalidade aplicada
+
+---
+
+### E10 — Falha na Criação da Partida
+- Erro técnico ocorre durante o pareamento ou criação
+
+**Resultado esperado:**
+- Jogadores retornam ao estado anterior
+- Nenhuma partida parcial criada
+- Mensagem clara exibida ao usuário
+
+---
+
+### E11 — Desconexão Durante o Matchmaking
+- Jogador perde conexão antes da criação da partida
+
+**Comportamento esperado:**
+- Jogador removido da fila
+- Nenhum slot fantasma permanece ocupado
+
+---
+
+### E12 — Tentativa de Matchmaking com Partida Ativa
+- Sistema impede nova entrada na fila
+- Mensagem informativa exibida ao usuário
+
+---
+
+## Pós-condições
+
+- Partida criada corretamente **ou**
+- Jogador removido da fila sem inconsistências
+- Nenhum jogador duplicado em filas ou partidas
+- Estado do sistema consistente após falhas
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Jogador inelegível entrando em partida
+- Jogador em duas filas simultâneas
+- Jogador em duas partidas ao mesmo tempo
+- Partida criada sem todos os jogadores necessários
+- Partida fantasma sem jogadores
+- Falta de feedback em caso de erro ou timeout
+- Inconsistência entre estado da fila e estado da partida
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser utilizado como base para:
+- Casos de teste manuais de matchmaking
+- Testes automatizados de fila e pareamento
+- Testes de concorrência
+- Testes de desconexão
+- Testes de regressão
+- Cenários BDD relacionados a partidas e matchmaking
