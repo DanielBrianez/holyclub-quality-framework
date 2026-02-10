@@ -762,3 +762,173 @@ Este fluxo deve ser utilizado como base para:
 - Testes de desconexão
 - Testes de regressão
 - Cenários BDD relacionados a partidas e matchmaking
+
+
+# Fluxo Crítico F — Abandono de Partida / AFK / Desconexão 🚫
+
+## Objetivo
+
+Definir como o sistema HolyClub detecta, registra e penaliza abandonos de partida, garantindo integridade competitiva, proteção aos jogadores prejudicados e evitando exploração de falhas por desconexões intencionais.
+
+Este é um fluxo **P0**, pois impacta diretamente:
+- Justiça competitiva
+- Experiência dos jogadores
+- Credibilidade do sistema de matchmaking e ELO
+
+---
+
+## Atores Envolvidos
+
+- Jogador participante da partida
+- Demais jogadores da partida
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Matchmaking
+- Serviço de Penalidades / Fair Play
+
+---
+
+## Pré-condições
+
+- Partida criada com sucesso (Fluxo Crítico E)
+- Jogador confirmado na partida
+- Partida em estado **Em andamento** ou **Prestígio de início confirmado**
+
+---
+
+## Definições Importantes
+
+### Abandono de Partida
+Considera-se abandono quando o jogador:
+
+- Sai voluntariamente da partida
+- Fecha o jogo/aplicação
+- Perde conexão e não retorna dentro do tempo limite
+- Permanece AFK além do tempo permitido
+- Não entra na partida após a confirmação de início
+
+> **Regra de Negócio:**  
+> O sistema **não diferencia intenção**. Todo abandono é tratado como evento técnico.
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### F1 — Monitoramento da Partida
+- O sistema monitora continuamente:
+  - Conectividade
+  - Presença ativa
+  - Eventos de saída
+  - Status AFK
+
+---
+
+### F2 — Detecção de Evento de Abandono
+O sistema detecta um dos eventos abaixo:
+- Desconexão
+- Saída voluntária
+- AFK prolongado
+- Não comparecimento inicial
+
+---
+
+### F3 — Janela de Reconexão (quando aplicável)
+- Sistema inicia contagem de tempo para reconexão
+- Jogador é notificado (quando possível)
+
+**Exemplo:**
+> *“Você foi desconectado. Retorne à partida em até X minutos para evitar penalidades.”*
+
+---
+
+### F4 — Retorno Bem-sucedido
+- Jogador retorna dentro do tempo limite
+- Evento de abandono é descartado
+- Partida segue normalmente
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### F5 — Abandono Confirmado
+O abandono é confirmado quando:
+- Jogador não retorna dentro do tempo limite
+- Jogador sai voluntariamente
+- AFK excede o tempo permitido
+
+**Ações do sistema:**
+- Registra abandono no histórico do jogador
+- Notifica os demais jogadores
+- Aplica penalidade correspondente
+
+---
+
+### F6 — Penalidade Aplicada
+Tipos de penalidade possíveis (progressivas):
+
+- Aviso formal
+- Bloqueio temporário de matchmaking
+- Bloqueio de inscrição em campeonatos
+- Redução de ELO
+- Restrição temporária ou permanente na HolyClub
+
+> As penalidades devem considerar histórico recente de abandonos.
+
+---
+
+### F7 — Impacto no ELO
+- Jogador que abandona:
+  - Recebe penalidade de ELO
+- Jogadores prejudicados:
+  - ELO ajustado conforme regra definida
+  - Proteção parcial ou total contra perda injusta
+
+---
+
+### F8 — Reincidência de Abandono
+- Sistema identifica reincidência em janela de tempo configurável
+- Penalidades escalam automaticamente
+
+**Exemplo:**
+- 1º abandono: aviso
+- 2º abandono: bloqueio temporário
+- 3º abandono: penalidade severa
+
+---
+
+## Pós-condições
+
+- Abandono registrado corretamente
+- Penalidades aplicadas e persistidas
+- Histórico do jogador atualizado
+- Dados disponíveis para auditoria e suporte
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Abandono não registrado
+- Jogador abandonar sem penalidade
+- Penalidade aplicada sem registro de evento
+- Penalidade sem feedback ao jogador
+- ELO ajustado incorretamente
+- Exploração de desconexões para evitar derrota
+
+---
+
+## Mensagens ao Usuário (Exemplos)
+
+- *“Você abandonou a partida e recebeu uma penalidade.”*
+- *“Reincidência de abandono detectada. Penalidade agravada.”*
+- *“Você está temporariamente impedido de entrar em partidas.”*
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser validado com:
+- Testes de desconexão forçada
+- Testes de AFK
+- Testes de concorrência
+- Testes de reincidência
+- Testes de impacto no ELO
+- Testes de persistência pós-refresh e novo login
