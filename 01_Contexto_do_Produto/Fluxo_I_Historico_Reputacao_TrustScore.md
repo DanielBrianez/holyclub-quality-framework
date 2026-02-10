@@ -381,3 +381,161 @@ Este fluxo deve ser validado com:
 - Ataques de força bruta
 - Logout forçado após reset de senha
 - Persistência entre dispositivos
+
+# Fluxo Crítico C — Perfil do Jogador e Dados da Conta 👤
+
+## Objetivo
+
+Definir como a HolyClub exibe, gerencia e protege os dados do **perfil do jogador**, garantindo consistência das informações, segurança, personalização da experiência e integração com os demais fluxos críticos.
+
+Este é um fluxo **P0**, pois impacta diretamente:
+- Experiência do usuário
+- Segurança e privacidade
+- Comunicação com outros jogadores
+- Elegibilidade para partidas, eventos e campeonatos
+
+---
+
+## Atores Envolvidos
+
+- Jogador autenticado
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Perfil
+- Serviço de Autenticação
+- Serviço de Reputação / Penalidades
+- Serviço de Integrações (Steam, etc.)
+
+---
+
+## Pré-condições
+
+- Jogador autenticado com sucesso (Fluxo B)
+- Conta ativa (não banida permanentemente)
+- Perfil criado automaticamente no Fluxo A
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### C1 — Acesso ao Perfil
+- Jogador acessa:
+  - Menu → **Perfil**
+- Sistema carrega dados do perfil do jogador
+
+---
+
+### C2 — Exibição das Informações do Perfil
+O sistema exibe, no mínimo:
+- Nickname
+- Avatar
+- ID interno HolyClub
+- Status da conta
+- Data de criação
+- Integrações ativas (ex: Steam)
+- Status de reputação (nível, não numérico)
+- Avisos ativos (penalidades, restrições)
+
+**Exemplo de mensagem:**
+> *“Bem-vindo de volta, Sombra”*
+
+---
+
+### C3 — Edição de Dados Permitidos
+Jogador pode editar:
+- Avatar
+- Preferências visuais
+- Configurações de privacidade
+- Configurações de notificações
+
+> **Regra de Negócio:**  
+> Dados sensíveis (email, autenticação, MFA) **não são editados diretamente aqui**.
+
+---
+
+### C4 — Salvamento das Alterações
+- Jogador confirma alterações
+- Sistema valida dados
+- Atualiza perfil
+- Registra log da alteração
+
+---
+
+### C5 — Integrações Externas
+- Jogador visualiza integrações ativas:
+  - Steam (obrigatória para partidas)
+- Sistema exibe:
+  - Status da integração
+  - Restrições detectadas (ex: VAC ban)
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### C6 — Perfil com Restrições
+Se o jogador possuir restrições:
+- Sistema exibe aviso destacado no perfil
+- Detalha:
+  - Tipo da restrição
+  - Impacto funcional
+  - Link para mais informações
+
+**Exemplo:**
+> *“Sua conta possui uma restrição ativa e não pode participar de partidas no momento.”*
+
+---
+
+### C7 — Tentativa de Edição Não Permitida
+- Jogador tenta editar campo sensível
+- Sistema:
+  - Bloqueia ação
+  - Exibe mensagem explicativa
+
+---
+
+### C8 — Integração Inválida ou Revogada
+- Integração (ex: Steam) falha ou é revogada
+- Sistema:
+  - Atualiza status
+  - Limita funcionalidades dependentes
+  - Notifica o jogador
+
+---
+
+## Pós-condições
+
+- Perfil consistente e atualizado
+- Alterações registradas em log
+- Status da conta refletido corretamente
+- Dados disponíveis para matchmaking e eventos
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Perfil carregar dados de outro jogador
+- Exposição de dados sensíveis
+- Edição de dados críticos sem autenticação
+- Perfil ignorar penalidades ou restrições
+- Informações inconsistentes entre serviços
+
+---
+
+## Regras de Negócio Importantes
+
+- Perfil é criado automaticamente no Fluxo A
+- Alterações devem ser auditáveis
+- Restrições sempre têm prioridade visual
+- Nicknames não podem causar impersonação
+- Integrações externas determinam elegibilidade funcional
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser validado com:
+- Perfil recém-criado
+- Perfil com histórico longo
+- Perfil com penalidades ativas
+- Tentativas de edição inválidas
+- Falhas de integração externa
+- Persistência após logout/login
