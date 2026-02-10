@@ -1396,6 +1396,23 @@ Pontuação dinâmica que representa a confiabilidade do jogador na HolyClub, ba
 - **Suspicious** (Shadowban / Low Priority)
 - **Restricted** (Funcionalidades bloqueadas)
 
+## Matriz de Fatores de Impacto (Black Box)
+
+Embora a fórmula exata seja secreta (para evitar exploração), os fatores conhecidos incluem:
+
+| Fator | Impacto | Observação |
+|-------|---------|------------|
+| Tempo de conta Steam | 🟢 Positivo | Contas antigas tendem a ser mais seguras |
+| Valor do inventário | 🟢 Positivo | Jogadores com skins caras evitam banimento |
+| Número de jogos na Steam | 🟢 Positivo | Perfil "gamer" real vs. conta descartável |
+| Denúncias (Report Spam) | 🔴 Negativo (Ponderado) | Requer validação para evitar falso-positivo |
+| Vínculo de HWID/IP | 🔴 Crítico | Se um PC tem banimento, todas as contas nele perdem score |
+| Kick por votação | 🔴 Negativo | Ser expulso da partida recorrentemente |
+| Dano a aliados | 🔴 Negativo | Fogo amigo intencional |
+
+> **Regra de Negócio:**
+> O impacto de denúncias deve ser normalizado. Streamers ou jogadores muito bons que recebem "reports de raiva" não podem ter o Trust Score destruído automaticamente.
+
 ---
 
 ## Matriz de Fatores de Impacto (Black Box)
