@@ -837,3 +837,163 @@ Em todos os casos:
 
 - Fluxos detalhados de **abandono de partida**, **desconexão** e **penalizações** serão tratados em fluxos críticos específicos (ex: Fluxo F).
 - Este fluxo serve como base para matchmaking e campeonatos futuros.
+
+# Fluxo Crítico F — Abandono de Partida, Desconexão e Penalizações ⚠️
+
+## Objetivo
+
+Definir como a HolyClub lida com abandono de partidas, desconexões voluntárias ou involuntárias, garantindo justiça competitiva, rastreabilidade e aplicação correta de penalizações quando necessário.
+
+---
+
+## Escopo do Fluxo
+
+Este fluxo contempla:
+
+- Abandono voluntário de partida
+- Desconexão involuntária (queda de internet, crash, Steam offline)
+- Janela de reconexão
+- Classificação de abandono
+- Aplicação de penalizações temporárias ou permanentes
+- Comunicação clara com o jogador
+
+---
+
+## Pré-requisitos
+
+- Partida em estado **Em Andamento** ou **Pronta para Iniciar**
+- Jogador autenticado e validado
+- Jogador vinculado à partida ativa
+
+---
+
+## Tipos de Saída de Partida
+
+### 1. Abandono Voluntário
+
+Ocorre quando o jogador:
+
+- Clica explicitamente em **Sair da Partida**
+- Fecha o jogo ou a aplicação intencionalmente
+- Recusa confirmação de início da partida após aceite
+
+➡️ Deve ser tratado como **abandono direto**, salvo exceções definidas por regra.
+
+---
+
+### 2. Desconexão Involuntária
+
+Ocorre quando:
+
+- Há queda de conexão
+- Steam fica temporariamente indisponível
+- Crash inesperado do cliente
+
+➡️ Deve acionar o **fluxo de reconexão**.
+
+---
+
+## Fluxo Principal — Desconexão com Reconexão
+
+1. Sistema detecta desconexão do jogador
+2. Jogador recebe status **Desconectado**
+3. Sistema inicia temporizador de reconexão (ex: 3–5 minutos)
+4. Interface informa aos demais jogadores o status do jogador desconectado
+5. Caso o jogador retorne dentro do tempo:
+   - Status volta para **Conectado**
+   - Partida continua normalmente
+6. Caso o tempo expire:
+   - Desconexão é convertida em **abandono**
+
+---
+
+## Fluxo Principal — Abandono Confirmado
+
+1. Sistema classifica o evento como abandono
+2. Sistema registra:
+   - Tipo (voluntário / involuntário)
+   - Momento da partida
+   - Histórico do jogador
+3. Sistema aplica regras de penalização
+4. Jogador recebe:
+   - Notificação flutuante
+   - Registro no perfil
+
+---
+
+## Penalizações Possíveis
+
+As penalizações devem ser progressivas e configuráveis:
+
+- Aviso (warning)
+- Bloqueio temporário de partidas
+- Bloqueio temporário de matchmaking
+- Restrição total de eventos ou campeonatos
+- Banimento permanente (casos extremos)
+
+> A gravidade deve considerar reincidência e contexto.
+
+---
+
+## Validações Críticas
+
+O sistema **não pode**:
+
+- Penalizar jogadores sem registro de evento
+- Penalizar desconexões dentro da janela de tolerância
+- Aplicar penalizações duplicadas para o mesmo evento
+- Permitir manipulação do fluxo (ex: forçar crash para evitar penalidade)
+
+---
+
+## Comunicação com o Jogador
+
+### Notificação Exemplo
+
+> "Você abandonou uma partida em andamento. Isso pode gerar penalizações caso se repita."
+
+### Perfil do Jogador
+
+Deve exibir:
+- Tipo de penalização
+- Duração
+- Motivo
+- Data de expiração (quando aplicável)
+
+---
+
+## Cenários de Erro e Exceção
+
+- Falha na detecção de status de conexão
+- Steam indisponível durante a partida
+- Erro interno ao aplicar penalização
+
+Nestes casos:
+- O sistema deve **priorizar não penalizar injustamente**
+- Evento deve ser logado para revisão manual
+
+---
+
+## O que NÃO pode acontecer
+
+- Penalização silenciosa sem aviso
+- Partidas ficarem travadas aguardando jogador indefinidamente
+- Jogadores abusarem de desconexão para evitar derrotas
+- Falta de histórico ou transparência no perfil
+
+---
+
+## Pós-condições
+
+- Estado da partida é resolvido corretamente
+- Penalizações (quando aplicáveis) estão registradas
+- Logs completos disponíveis para auditoria
+- Integridade competitiva preservada
+
+---
+
+## Observações
+
+- Regras exatas de tempo e penalização devem ser parametrizáveis
+- Este fluxo impacta diretamente matchmaking, rankings e campeonatos
+- Fluxos de **contestação de penalidade** podem ser tratados separadamente
