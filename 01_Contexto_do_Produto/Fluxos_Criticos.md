@@ -1294,3 +1294,179 @@ Este fluxo deve ser validado com:
 - Testes de concorrência de recursos
 - Testes de auditoria e logs
 - Testes de persistência pós-login
+
+# Fluxo Crítico I — Histórico, Reputação e Trust Score 📊
+
+## Objetivo
+
+Definir como a HolyClub consolida o histórico competitivo e comportamental dos jogadores em um **sistema de reputação (Trust Score)**, utilizado para decisões automatizadas de matchmaking, campeonatos, penalidades e prevenção de abusos.
+
+Este é um fluxo **P0**, pois impacta diretamente:
+- Qualidade das partidas
+- Justiça competitiva
+- Retenção de bons jogadores
+- Prevenção de toxicidade e exploits
+
+---
+
+## Atores Envolvidos
+
+- Jogador autenticado
+- Sistema HolyClub (Frontend + Backend)
+- Serviço de Matchmaking
+- Serviço de Penalidades / Fair Play
+- Serviço de Reputação / Trust Score
+
+---
+
+## Pré-condições
+
+- Jogador autenticado (Fluxo B)
+- Jogador possui histórico mínimo de partidas ou ações na plataforma
+- Eventos anteriores registrados (Fluxos E, F, G e H)
+
+---
+
+## Conceitos-Chave
+
+### Trust Score
+Pontuação dinâmica que representa a confiabilidade do jogador na HolyClub, baseada em:
+
+- Conclusão de partidas
+- Abandonos
+- Penalidades
+- Recursos aceitos ou negados
+- Denúncias recebidas e confirmadas
+- Tempo de conta
+- Frequência de partidas
+
+> **Regra de Negócio:**  
+> Trust Score **não é visível em valor numérico bruto para outros jogadores**, apenas em níveis ou estados.
+
+---
+
+## Estados de Reputação (Exemplo)
+
+- Excelente
+- Boa
+- Neutra
+- Risco
+- Restrita
+
+---
+
+## Fluxo Principal (Happy Path)
+
+### I1 — Consolidação de Eventos
+- Sistema coleta eventos do jogador:
+  - Partidas concluídas
+  - Abandonos
+  - Penalidades
+  - Recursos
+  - Denúncias
+
+---
+
+### I2 — Cálculo do Trust Score
+- Serviço de reputação processa os dados
+- Aplica pesos e regras de negócio
+- Atualiza o Trust Score do jogador
+
+**Exemplo de fatores positivos:**
+- Sequência de partidas concluídas
+- Longo período sem penalidades
+
+**Exemplo de fatores negativos:**
+- Abandonos recentes
+- Penalidades ativas
+- Reincidência de infrações
+
+---
+
+### I3 — Atualização do Perfil do Jogador
+- Perfil exibe:
+  - Status de reputação (nível)
+  - Histórico resumido
+  - Avisos quando em estado de risco
+
+**Exemplo de mensagem:**
+> *“Sua reputação está em risco. Evite abandonos para manter acesso ao matchmaking.”*
+
+---
+
+### I4 — Uso do Trust Score no Matchmaking
+- Matchmaking considera o Trust Score para:
+  - Agrupamento de jogadores
+  - Fila prioritária ou restrita
+  - Limitação de acesso a certos modos
+
+---
+
+## Fluxos Alternativos e Cenários Negativos
+
+### I5 — Trust Score em Estado Crítico
+Quando o jogador entra em estado **Risco** ou **Restrito**:
+
+- Matchmaking pode ser limitado
+- Campeonatos podem ser bloqueados
+- Avisos claros são exibidos no perfil
+
+---
+
+### I6 — Recuperação de Reputação
+- Sistema permite recuperação gradual:
+  - Partidas completas sem incidentes
+  - Tempo sem novas penalidades
+- Trust Score melhora progressivamente
+
+> **Regra Importante:**  
+> Recuperação nunca é instantânea.
+
+---
+
+### I7 — Proteção Contra Manipulação
+- Sistema detecta:
+  - Padrões artificiais
+  - Tentativas de farmar reputação
+- Eventos suspeitos não impactam positivamente o Trust Score
+
+---
+
+## Pós-condições
+
+- Trust Score atualizado corretamente
+- Histórico consistente e auditável
+- Decisões automatizadas baseadas na reputação
+- Feedback claro ao jogador
+
+---
+
+## O que NÃO pode acontecer (P0)
+
+- Trust Score desatualizado
+- Penalidade não refletida na reputação
+- Reputação alterada sem evento registrado
+- Recuperação instantânea após penalidade grave
+- Jogadores tóxicos misturados com jogadores confiáveis
+- Exposição excessiva de dados sensíveis de reputação
+
+---
+
+## Regras de Negócio Importantes
+
+- Trust Score influencia, mas não substitui regras fixas
+- Penalidades graves têm peso maior que eventos positivos
+- Histórico nunca é apagado, apenas perde peso com o tempo
+- Toda alteração deve ser rastreável
+
+---
+
+## Observações de QA
+
+Este fluxo deve ser validado com:
+- Testes de cálculo incremental
+- Testes de regressão após penalidades
+- Testes de recuperação gradual
+- Testes de matchmaking com diferentes reputações
+- Testes de auditoria e logs
+- Testes de persistência pós-login
